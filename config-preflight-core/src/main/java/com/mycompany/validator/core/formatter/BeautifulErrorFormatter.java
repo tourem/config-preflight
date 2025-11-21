@@ -85,8 +85,12 @@ public class BeautifulErrorFormatter {
     private String formatError(ConfigurationError error) {
         StringBuilder sb = new StringBuilder();
         
-        // Ligne: 👉 Property: xxx
-        String propertyLine = "👉 Property: " + (error.getPropertyName() != null ? error.getPropertyName() : "unknown");
+        // Ligne: 👉 Property: xxx [SENSITIVE]
+        String propertyName = error.getPropertyName() != null ? error.getPropertyName() : "unknown";
+        String propertyLine = "👉 Property: " + propertyName;
+        if (error.isSensitive()) {
+            propertyLine += " 🔒 [SENSITIVE]";
+        }
         sb.append(formatBoxLine(propertyLine, false, 3)).append("\n");
         
         // Ligne: Source: xxx
