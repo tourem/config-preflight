@@ -9,14 +9,13 @@ import com.mycompany.validator.core.model.PropertySource;
 import io.micronaut.context.BeanContext;
 import io.micronaut.context.annotation.ConfigurationProperties;
 import io.micronaut.context.event.ApplicationEventListener;
-import io.micronaut.context.event.StartupEvent;
+import io.micronaut.runtime.server.event.ServerStartupEvent;
 import io.micronaut.core.order.Ordered;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -26,7 +25,7 @@ import java.util.List;
  * et vérifie que leurs propriétés ne sont pas null.
  */
 @Singleton
-public class MicronautConfigurationPropertiesValidator implements ApplicationEventListener<StartupEvent>, Ordered {
+public class MicronautConfigurationPropertiesValidator implements ApplicationEventListener<ServerStartupEvent>, Ordered {
     
     private static final Logger logger = LoggerFactory.getLogger(MicronautConfigurationPropertiesValidator.class);
     
@@ -39,25 +38,34 @@ public class MicronautConfigurationPropertiesValidator implements ApplicationEve
     }
     
     @Override
-    public void onApplicationEvent(StartupEvent event) {
+    public void onApplicationEvent(ServerStartupEvent event) {
         logger.info("🔍 Scanning @ConfigurationProperties beans for null values...");
         
         List<ConfigurationError> errors = new ArrayList<>();
         
-        // Trouver tous les beans avec @ConfigurationProperties
-        Collection<Object> configBeans = beanContext.getBeansOfType(Object.class);
+        // Trouver tous les bean definitions avec @ConfigurationProperties
+        Collection<?> beanDefinitions = beanContext.getBeanDefinitions(Object.class);
         
-        for (Object bean : configBeans) {
-            Class<?> beanClass = bean.getClass();
-            
-            // Vérifier si la classe ou une superclasse a @ConfigurationProperties
-            ConfigurationProperties annotation = findConfigurationPropertiesAnnotation(beanClass);
-            if (annotation != null) {
-                String prefix = annotation.value();
-                logger.debug("Found @ConfigurationProperties bean: {} with prefix: {}", beanClass.getSimpleName(), prefix);
+        for (Object beanDef : beanDefinitions) {
+            if (beanDef instanceof io.micronaut.inject.BeanDefinition) {
+                io.micronaut.inject.BeanDefinition<?> definition = (io.micronaut.inject.BeanDefinition<?>) beanDef;
+                Class<?> beanClass = definition.getBeanType();
                 
-                // Valider les propriétés de ce bean
-                errors.addAll(validateBean(bean, prefix, beanClass));
+                // Vérifier si la classe a @ConfigurationProperties
+                ConfigurationProperties annotation = findConfigurationPropertiesAnnotation(beanClass);
+                if (annotation != null) {
+                    String prefix = annotation.value();
+                    logger.debug("Found @ConfigurationProperties bean: {} with prefix: {}", beanClass.getSimpleName(), prefix);
+                    
+                    // Récupérer le bean
+                    try {
+                        Object bean = beanContext.getBean(beanClass);
+                        // Valider les propriétés de ce bean
+                        errors.addAll(validateBean(bean, prefix, beanClass));
+                    } catch (Exception e) {
+                        logger.warn("Could not get bean for class {}: {}", beanClass.getSimpleName(), e.getMessage());
+                    }
+                }
             }
         }
         
