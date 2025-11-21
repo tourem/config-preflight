@@ -258,7 +258,7 @@ public void postProcessEnvironment(ConfigurableEnvironment environment,
 **Registered in**: `META-INF/spring.factories`
 ```properties
 org.springframework.boot.env.EnvironmentPostProcessor=\
-com.mycompany.validator.springboot.SpringBootValidatorEnvironmentPostProcessor
+io.github.tourem.springboot.SpringBootValidatorEnvironmentPostProcessor
 ```
 
 #### 2. Binder API
@@ -295,7 +295,7 @@ protected FailureAnalysis analyze(Throwable rootFailure,
 **Registered in**: `META-INF/spring.factories`
 ```properties
 org.springframework.boot.diagnostics.FailureAnalyzer=\
-com.mycompany.validator.springboot.ConfigurationValidationFailureAnalyzer
+io.github.tourem.springboot.ConfigurationValidationFailureAnalyzer
 ```
 
 ### Quarkus
@@ -381,7 +381,7 @@ Optional<String> value = environment.getProperty("app.url", String.class);
 **Spring Boot:**
 ```xml
 <dependency>
-    <groupId>com.mycompany.validator</groupId>
+    <groupId>io.github.tourem</groupId>
     <artifactId>configuration-validator-spring-boot</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 </dependency>
@@ -390,7 +390,7 @@ Optional<String> value = environment.getProperty("app.url", String.class);
 **Quarkus:**
 ```xml
 <dependency>
-    <groupId>com.mycompany.validator</groupId>
+    <groupId>io.github.tourem</groupId>
     <artifactId>configuration-validator-quarkus</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 </dependency>
@@ -399,7 +399,7 @@ Optional<String> value = environment.getProperty("app.url", String.class);
 **Micronaut:**
 ```xml
 <dependency>
-    <groupId>com.mycompany.validator</groupId>
+    <groupId>io.github.tourem</groupId>
     <artifactId>configuration-validator-micronaut</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 </dependency>

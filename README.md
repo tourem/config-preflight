@@ -3,7 +3,7 @@
 > **Stop the "Restart-Crash-Fix" Loop.**  
 > Validate **ALL** your configuration properties at startup, before your beans even try to initialize.
 
-[![Maven Central](https://img.shields.io/maven-central/v/com.mycompany/configuration-validator.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:com.mycompany%20a:configuration-validator)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.tourem/configuration-validator-parent.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:io.github.tourem%20a:configuration-validator)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen)](https://spring.io/projects/spring-boot)
 [![Quarkus](https://img.shields.io/badge/Quarkus-3.x-red)](https://quarkus.io/)
@@ -125,7 +125,7 @@ You get ALL errors at once, clearly formatted:
 #### Spring Boot
 ```xml
 <dependency>
-    <groupId>com.mycompany.validator</groupId>
+    <groupId>io.github.tourem</groupId>
     <artifactId>configuration-validator-spring-boot</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 </dependency>
@@ -134,7 +134,7 @@ You get ALL errors at once, clearly formatted:
 #### Quarkus
 ```xml
 <dependency>
-    <groupId>com.mycompany.validator</groupId>
+    <groupId>io.github.tourem</groupId>
     <artifactId>configuration-validator-quarkus</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 </dependency>
@@ -143,7 +143,7 @@ You get ALL errors at once, clearly formatted:
 #### Micronaut
 ```xml
 <dependency>
-    <groupId>com.mycompany.validator</groupId>
+    <groupId>io.github.tourem</groupId>
     <artifactId>configuration-validator-micronaut</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 </dependency>
