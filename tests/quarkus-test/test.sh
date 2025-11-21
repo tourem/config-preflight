@@ -37,35 +37,35 @@ echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "SCENARIO 1: Missing database.password and database.timeout"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-java -jar target/quarkus-app/quarkus-run.jar -Dquarkus.profile=scenario1 2>&1 | head -50 || true
+QUARKUS_PROFILE=scenario1 java -jar target/quarkus-app/quarkus-run.jar 2>&1 | head -50 || true
 
 # Scenario 2: Missing API properties
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "SCENARIO 2: Missing api.endpoint and api.cache-directory"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-java -jar target/quarkus-app/quarkus-run.jar -Dquarkus.profile=scenario2 2>&1 | head -50 || true
+QUARKUS_PROFILE=scenario2 java -jar target/quarkus-app/quarkus-run.jar 2>&1 | head -50 || true
 
 # Scenario 3: Missing messaging properties
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "SCENARIO 3: Missing messaging.queue-name and messaging.connection-timeout"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-java -jar target/quarkus-app/quarkus-run.jar -Dquarkus.profile=scenario3 2>&1 | head -50 || true
+QUARKUS_PROFILE=scenario3 java -jar target/quarkus-app/quarkus-run.jar 2>&1 | head -50 || true
 
 # Scenario 4: Multiple missing properties
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "SCENARIO 4: Multiple missing properties (6 total)"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-java -jar target/quarkus-app/quarkus-run.jar -Dquarkus.profile=scenario4 2>&1 | head -50 || true
+QUARKUS_PROFILE=scenario4 java -jar target/quarkus-app/quarkus-run.jar 2>&1 | head -50 || true
 
 # Valid scenario
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "SCENARIO 5: All properties present (should succeed)"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-java -jar target/quarkus-app/quarkus-run.jar -Dquarkus.profile=valid 2>&1 | head -50 || true
+QUARKUS_PROFILE=valid java -jar target/quarkus-app/quarkus-run.jar 2>&1 | head -50 || true
 
 echo ""
 echo "=========================================="
