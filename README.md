@@ -1,9 +1,9 @@
-# 🛡️ Configuration Validator
+# 🛡️ Config Preflight
 
 > **Stop the "Restart-Crash-Fix" Loop.**  
 > Validate **ALL** your configuration properties at startup, before your beans even try to initialize.
 
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.tourem/configuration-validator-parent.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:io.github.tourem%20a:configuration-validator)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.tourem/config-preflight-parent.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:io.github.tourem%20a:config-preflight)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen)](https://spring.io/projects/spring-boot)
 [![Quarkus](https://img.shields.io/badge/Quarkus-3.x-red)](https://quarkus.io/)
@@ -27,7 +27,7 @@ You know this struggle. You deploy your app to a new environment, and then:
 
 ## 🚀 The Solution
 
-**Configuration Validator** checks everything **immediately**. It scans your environment, detects all missing placeholders, handles relaxed binding, and gives you a **single, beautiful report** blocking the startup *before* things get messy.
+**Config Preflight** checks everything **immediately**. It scans your environment, detects all missing placeholders, handles relaxed binding, and gives you a **single, beautiful report** blocking the startup *before* things get messy.
 
 ### ✨ The "Beautiful Report"
 
@@ -45,7 +45,7 @@ app:
     key: ${API_KEY}
 ```
 
-#### ❌ Without Configuration Validator (Spring Boot Default)
+#### ❌ Without Config Preflight (Spring Boot Default)
 
 You get cryptic errors, one at a time:
 
@@ -77,7 +77,7 @@ Process finished with exit code 1
 - ❌ Only shows the FIRST error
 - ❌ Need to restart multiple times
 
-#### ✅ With Configuration Validator
+#### ✅ With Config Preflight
 
 You get ALL errors at once, clearly formatted:
 
@@ -126,7 +126,7 @@ You get ALL errors at once, clearly formatted:
 ```xml
 <dependency>
     <groupId>io.github.tourem</groupId>
-    <artifactId>configuration-validator-spring-boot</artifactId>
+    <artifactId>config-preflight-spring-boot</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 </dependency>
 ```
@@ -135,7 +135,7 @@ You get ALL errors at once, clearly formatted:
 ```xml
 <dependency>
     <groupId>io.github.tourem</groupId>
-    <artifactId>configuration-validator-quarkus</artifactId>
+    <artifactId>config-preflight-quarkus</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 </dependency>
 ```
@@ -144,7 +144,7 @@ You get ALL errors at once, clearly formatted:
 ```xml
 <dependency>
     <groupId>io.github.tourem</groupId>
-    <artifactId>configuration-validator-micronaut</artifactId>
+    <artifactId>config-preflight-micronaut</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 </dependency>
 ```
@@ -200,7 +200,7 @@ app:
     key: ${API_KEY}                  # ❌ REQUIRED + SENSITIVE
 ```
 
-### Without Configuration Validator
+### Without Config Preflight
 ```
 Application started...
 Error creating bean 'dataSource'
@@ -209,7 +209,7 @@ Error creating bean 'dataSource'
 ```
 ❌ **Result**: Restart, fix one error, repeat 3 times.
 
-### With Configuration Validator
+### With Config Preflight
 ```
 ╔═══════════════════════════════════════════════════════════════════════════════╗
 ║              ⚠️   CONFIGURATION VALIDATION FAILED   ⚠️                        ║
@@ -316,4 +316,4 @@ Apache License 2.0 - See [LICENSE](LICENSE) for details.
 
 ---
 
-**Stop wasting time on configuration errors. Start using Configuration Validator today!** 🚀
+**Stop wasting time on configuration errors. Start using Config Preflight today!** 🚀

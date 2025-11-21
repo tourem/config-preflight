@@ -6,13 +6,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.github.tourem</groupId>
-    <artifactId>configuration-validator-parent</artifactId>
+    <artifactId>config-preflight-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>Configuration Validator Parent</name>
+    <name>Config Preflight Parent</name>
     <description>Universal configuration validator for Spring Boot, Quarkus, and Micronaut</description>
-    <url>https://github.com/tourem/spring-boot-config-validator</url>
+    <url>https://github.com/tourem/config-preflight</url>
 
     <licenses>
         <license>
@@ -31,9 +31,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/tourem/spring-boot-config-validator.git</connection>
-        <developerConnection>scm:git:ssh://github.com:tourem/spring-boot-config-validator.git</developerConnection>
-        <url>https://github.com/tourem/spring-boot-config-validator/tree/main</url>
+        <connection>scm:git:git://github.com/tourem/config-preflight.git</connection>
+        <developerConnection>scm:git:ssh://github.com:tourem/config-preflight.git</developerConnection>
+        <url>https://github.com/tourem/config-preflight/tree/main</url>
     </scm>
 
     <properties>
@@ -54,10 +54,10 @@
     </properties>
 
     <modules>
-        <module>configuration-validator-core</module>
-        <module>configuration-validator-spring-boot</module>
-        <module>configuration-validator-quarkus</module>
-        <module>configuration-validator-micronaut</module>
+        <module>config-preflight-core</module>
+        <module>config-preflight-spring-boot</module>
+        <module>config-preflight-quarkus</module>
+        <module>config-preflight-micronaut</module>
     </modules>
 
     <dependencyManagement>
@@ -65,7 +65,7 @@
             <!-- Internal modules -->
             <dependency>
                 <groupId>io.github.tourem</groupId>
-                <artifactId>configuration-validator-core</artifactId>
+                <artifactId>config-preflight-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

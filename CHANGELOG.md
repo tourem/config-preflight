@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Configuration Validator will be documented in this file.
+All notable changes to Config Preflight will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -158,10 +158,10 @@ my-service.api-key → MY_SERVICE_API_KEY
 - All errors displayed at once
 
 #### Modules
-- `configuration-validator-core` - Common logic
-- `configuration-validator-spring-boot` - Spring Boot implementation
-- `configuration-validator-quarkus` - Quarkus implementation
-- `configuration-validator-micronaut` - Micronaut implementation
+- `config-preflight-core` - Common logic
+- `config-preflight-spring-boot` - Spring Boot implementation
+- `config-preflight-quarkus` - Quarkus implementation
+- `config-preflight-micronaut` - Micronaut implementation
 
 ### 🧪 Testing
 - 16 unit tests
@@ -264,8 +264,8 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 ---
 
-**Configuration Validator** - Stop wasting time on configuration errors! 🚀
+**Config Preflight** - Stop wasting time on configuration errors! 🚀
 
-[Unreleased]: https://github.com/yourorg/configuration-validator/compare/v1.0.0...HEAD
-[1.0.0-SNAPSHOT]: https://github.com/yourorg/configuration-validator/releases/tag/v1.0.0
-[0.2.0]: https://github.com/yourorg/configuration-validator/releases/tag/v0.2.0
+[Unreleased]: https://github.com/yourorg/config-preflight/compare/v1.0.0...HEAD
+[1.0.0-SNAPSHOT]: https://github.com/yourorg/config-preflight/releases/tag/v1.0.0
+[0.2.0]: https://github.com/yourorg/config-preflight/releases/tag/v0.2.0

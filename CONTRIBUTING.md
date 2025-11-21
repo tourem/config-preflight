@@ -1,6 +1,6 @@
-# Contributing to Configuration Validator
+# Contributing to Config Preflight
 
-Thank you for your interest in contributing to Configuration Validator! This document provides guidelines and instructions for contributing.
+Thank you for your interest in contributing to Config Preflight! This document provides guidelines and instructions for contributing.
 
 ---
 
@@ -69,8 +69,8 @@ We welcome various types of contributions:
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/yourorg/configuration-validator.git
-cd configuration-validator
+git clone https://github.com/yourorg/config-preflight.git
+cd config-preflight
 ```
 
 ### Build the Project
@@ -89,11 +89,11 @@ mvn clean install
 ### Project Structure
 
 ```
-configuration-validator/
-├── configuration-validator-core/          # Framework-agnostic logic
-├── configuration-validator-spring-boot/   # Spring Boot integration
-├── configuration-validator-quarkus/       # Quarkus integration
-└── configuration-validator-micronaut/     # Micronaut integration
+config-preflight/
+├── config-preflight-core/          # Framework-agnostic logic
+├── config-preflight-spring-boot/   # Spring Boot integration
+├── config-preflight-quarkus/       # Quarkus integration
+└── config-preflight-micronaut/     # Micronaut integration
 ```
 
 ---
@@ -185,7 +185,7 @@ class PlaceholderDetectorTest {
 mvn test
 
 # Run tests for specific module
-mvn test -pl configuration-validator-core
+mvn test -pl config-preflight-core
 
 # Run with coverage
 mvn clean test jacoco:report
@@ -200,7 +200,7 @@ mvn clean test jacoco:report
 ```bash
 # Fork the repository on GitHub
 # Clone your fork
-git clone https://github.com/yourusername/configuration-validator.git
+git clone https://github.com/yourusername/config-preflight.git
 
 # Create a feature branch
 git checkout -b feature/your-feature-name
@@ -299,7 +299,7 @@ What should happen
 What actually happens
 
 ## Environment
-- Configuration Validator version: 1.0.0-SNAPSHOT
+- Config Preflight version: 1.0.0-SNAPSHOT
 - Framework: Spring Boot 3.2.0
 - JDK version: 17
 - OS: macOS / Linux / Windows
@@ -373,7 +373,7 @@ By contributing, you agree that your contributions will be licensed under the Ap
 
 ## 🙏 Thank You!
 
-Thank you for contributing to Configuration Validator! Your efforts help make this project better for everyone.
+Thank you for contributing to Config Preflight! Your efforts help make this project better for everyone.
 
 ---
 

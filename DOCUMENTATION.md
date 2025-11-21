@@ -1,4 +1,4 @@
-# 📚 Configuration Validator - Complete Documentation
+# 📚 Config Preflight - Complete Documentation
 
 ## Table of Contents
 
@@ -129,7 +129,7 @@ Typical scenario:
 
 ### Our Approach
 
-**Configuration Validator** solves all these problems by:
+**Config Preflight** solves all these problems by:
 
 1. **Early Validation**: Runs BEFORE any bean initialization
 2. **Complete Scanning**: Detects ALL errors at once
@@ -142,7 +142,7 @@ Typical scenario:
 ```
 Application Startup Flow (With Validator):
 1. Load configuration files ✅
-2. Configuration Validator runs ✅
+2. Config Preflight runs ✅
    → Scans ALL properties
    → Detects ALL errors
    → Shows beautiful report
@@ -159,23 +159,23 @@ Application Startup Flow (With Validator):
 ### Module Structure
 
 ```
-configuration-validator/
-├── configuration-validator-core/          # Framework-agnostic logic
+config-preflight/
+├── config-preflight-core/          # Framework-agnostic logic
 │   ├── api/                               # Public interfaces
 │   ├── model/                             # Error models
 │   ├── detector/                          # Placeholder & secret detection
 │   └── formatter/                         # Error formatting
 │
-├── configuration-validator-spring-boot/   # Spring Boot integration
+├── config-preflight-spring-boot/   # Spring Boot integration
 │   ├── SpringBootValidatorEnvironmentPostProcessor
 │   ├── SpringBootBinderPropertyResolver
 │   └── ConfigurationValidationFailureAnalyzer
 │
-├── configuration-validator-quarkus/       # Quarkus integration
+├── config-preflight-quarkus/       # Quarkus integration
 │   ├── QuarkusEarlyValidator
 │   └── QuarkusConfigurationValidator
 │
-└── configuration-validator-micronaut/     # Micronaut integration
+└── config-preflight-micronaut/     # Micronaut integration
     ├── MicronautEarlyValidator
     └── MicronautConfigurationValidator
 ```
@@ -382,7 +382,7 @@ Optional<String> value = environment.getProperty("app.url", String.class);
 ```xml
 <dependency>
     <groupId>io.github.tourem</groupId>
-    <artifactId>configuration-validator-spring-boot</artifactId>
+    <artifactId>config-preflight-spring-boot</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 </dependency>
 ```
@@ -391,7 +391,7 @@ Optional<String> value = environment.getProperty("app.url", String.class);
 ```xml
 <dependency>
     <groupId>io.github.tourem</groupId>
-    <artifactId>configuration-validator-quarkus</artifactId>
+    <artifactId>config-preflight-quarkus</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 </dependency>
 ```
@@ -400,7 +400,7 @@ Optional<String> value = environment.getProperty("app.url", String.class);
 ```xml
 <dependency>
     <groupId>io.github.tourem</groupId>
-    <artifactId>configuration-validator-micronaut</artifactId>
+    <artifactId>config-preflight-micronaut</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 </dependency>
 ```
@@ -408,7 +408,7 @@ Optional<String> value = environment.getProperty("app.url", String.class);
 #### 2. Build the Library (First Time Only)
 
 ```bash
-cd configuration-validator
+cd config-preflight
 mvn clean install
 ```
 
@@ -719,8 +719,8 @@ The library includes comprehensive unit tests:
 mvn test
 
 # Run tests for specific module
-mvn test -pl configuration-validator-core
-mvn test -pl configuration-validator-spring-boot
+mvn test -pl config-preflight-core
+mvn test -pl config-preflight-spring-boot
 ```
 
 ### Integration Tests
@@ -943,11 +943,11 @@ configuration.validator.enabled=false
 - [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines
 
 ### Issues
-Report issues on GitHub: [Issues](https://github.com/yourorg/configuration-validator/issues)
+Report issues on GitHub: [Issues](https://github.com/yourorg/config-preflight/issues)
 
 ### Community
-- Stack Overflow: Tag `configuration-validator`
-- Discussions: [GitHub Discussions](https://github.com/yourorg/configuration-validator/discussions)
+- Stack Overflow: Tag `config-preflight`
+- Discussions: [GitHub Discussions](https://github.com/yourorg/config-preflight/discussions)
 
 ---
 
