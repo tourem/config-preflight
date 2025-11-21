@@ -84,8 +84,9 @@ jobs:
         git add pom.xml */pom.xml
         git commit -m "Prepare next development iteration ${{ steps.next-version.outputs.next-snapshot }}"
         
-    - name: Update test projects with new snapshot version
+    - name: Update demo projects with new snapshot version
       run: |
+        echo "Updating demo projects to use config-preflight version: ${{ steps.next-version.outputs.next-snapshot }}"
         cd tests/spring-boot-test
         mvn versions:set-property -Dproperty=config-preflight.version -DnewVersion=${{ steps.next-version.outputs.next-snapshot }} -DgenerateBackupPoms=false
         cd ../quarkus-test
@@ -93,10 +94,10 @@ jobs:
         cd ../micronaut-test
         mvn versions:set-property -Dproperty=config-preflight.version -DnewVersion=${{ steps.next-version.outputs.next-snapshot }} -DgenerateBackupPoms=false
         cd ../..
-        git add tests/*/pom.xml
         
     - name: Update documentation with release version
       run: |
+        echo "Updating documentation to reference release version: ${{ inputs.release-version }}"
         # Update README.md
         sed -i "s/<version>.*-SNAPSHOT<\/version>/<version>${{ inputs.release-version }}<\/version>/g" README.md
         
@@ -106,11 +107,14 @@ jobs:
         # Update tests/README.md
         sed -i "s/<config-preflight.version>.*-SNAPSHOT<\/config-preflight.version>/<config-preflight.version>${{ inputs.release-version }}<\/config-preflight.version>/g" tests/README.md
         
-        git add README.md DOCUMENTATION.md tests/README.md
-        
-    - name: Commit documentation and test updates
+    - name: Commit all updates
       run: |
-        git commit -m "Update test projects and documentation to version ${{ inputs.release-version }}"
+        git add tests/*/pom.xml README.md DOCUMENTATION.md tests/README.md
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "Update demo projects to ${{ steps.next-version.outputs.next-snapshot }} and documentation to ${{ inputs.release-version }}"
+        fi
         
     - name: Push changes and tags
       run: |
