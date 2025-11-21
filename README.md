@@ -151,7 +151,28 @@ You get ALL errors at once, clearly formatted:
 
 ### 2. That's It! 🎉
 
-The validator activates **automatically** at startup. No configuration needed.
+The validator activates **automatically** at startup.
+
+- **Spring Boot** ✅ Automatically scans `@ConfigurationProperties` beans
+- **Micronaut** ✅ Automatically scans `@ConfigurationProperties` beans
+- **Quarkus** ⚠️ See optional configuration below
+
+#### Optional: Custom Property Validation (Quarkus)
+
+For Quarkus projects, you can optionally define which properties to validate by creating a file:
+
+**`src/main/resources/META-INF/config-preflight.properties`**
+
+```properties
+# List of required properties to validate
+required.properties.database.url=true
+required.properties.database.username=true
+required.properties.database.password=true
+required.properties.api.endpoint=true
+required.properties.api.api-key=true
+```
+
+> **Note**: This is **optional** for Quarkus. If this file is not present, the validator will still check for unresolved placeholders in your configuration.
 
 ---
 

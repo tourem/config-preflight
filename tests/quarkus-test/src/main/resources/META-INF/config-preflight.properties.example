@@ -1,0 +1,58 @@
+# ============================================================================
+# Config Preflight - Optional Property Validation (Quarkus Only)
+# ============================================================================
+#
+# This file is OPTIONAL. It allows you to explicitly define which properties
+# should be validated at startup.
+#
+# WITHOUT this file:
+#   - Config Preflight will still validate all unresolved placeholders (${...})
+#   - This is usually sufficient for most use cases
+#
+# WITH this file:
+#   - You can validate specific @ConfigMapping interface properties
+#   - Useful when you want to ensure certain properties are set, even if
+#     they don't use placeholders
+#
+# HOW TO USE:
+#   1. Rename this file to: config-preflight.properties
+#   2. List your required properties below using the format:
+#      required.properties.<property.name>=true
+#
+# EXAMPLE:
+# ============================================================================
+
+# Database configuration
+required.properties.database.url=true
+required.properties.database.username=true
+required.properties.database.password=true
+required.properties.database.max-connections=true
+required.properties.database.timeout=true
+
+# API configuration
+required.properties.api.endpoint=true
+required.properties.api.api-key=true
+required.properties.api.retry-count=true
+required.properties.api.enable-cache=true
+required.properties.api.cache-directory=true
+
+# Messaging configuration
+required.properties.messaging.broker-url=true
+required.properties.messaging.queue-name=true
+required.properties.messaging.username=true
+required.properties.messaging.password=true
+required.properties.messaging.connection-timeout=true
+required.properties.messaging.auto-reconnect=true
+
+# ============================================================================
+# NOTES:
+# ============================================================================
+#
+# - Property names should use kebab-case (e.g., max-connections, not maxConnections)
+# - The value (true/false) is currently ignored; presence of the key is what matters
+# - Sensitive properties (password, key, token, secret) are automatically masked
+# - All errors are reported at once, not one at a time
+#
+# For more information, see:
+# https://github.com/tourem/config-preflight
+# ============================================================================

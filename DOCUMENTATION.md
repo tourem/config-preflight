@@ -414,7 +414,43 @@ mvn clean install
 
 #### 3. That's It!
 
-The validator activates automatically. No configuration needed.
+The validator activates automatically:
+
+- **Spring Boot** ✅ Automatically scans `@ConfigurationProperties` beans
+- **Micronaut** ✅ Automatically scans `@ConfigurationProperties` beans  
+- **Quarkus** ⚠️ Automatically validates placeholders + optional custom validation
+
+### Optional: Custom Property Validation (Quarkus Only)
+
+For Quarkus projects, you can optionally define specific properties to validate by creating:
+
+**`src/main/resources/META-INF/config-preflight.properties`**
+
+```properties
+# Define required properties to validate
+required.properties.database.url=true
+required.properties.database.username=true
+required.properties.database.password=true
+required.properties.database.max-connections=true
+
+required.properties.api.endpoint=true
+required.properties.api.api-key=true
+required.properties.api.retry-count=true
+
+required.properties.messaging.broker-url=true
+required.properties.messaging.queue-name=true
+```
+
+**When to use this:**
+- ✅ You want to validate specific `@ConfigMapping` interface properties
+- ✅ You want explicit control over which properties are required
+- ✅ You want validation beyond just unresolved placeholders
+
+**When NOT needed:**
+- ❌ You only use placeholders (`${...}`) - these are validated automatically
+- ❌ You're using Spring Boot or Micronaut - they scan automatically
+
+> **Note**: This file is **completely optional**. Without it, Quarkus will still validate all unresolved placeholders in your configuration.
 
 ---
 
