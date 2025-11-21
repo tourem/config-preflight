@@ -6,7 +6,6 @@ import com.mycompany.validator.core.model.ConfigurationError;
 import com.mycompany.validator.core.model.ErrorType;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Formatte les erreurs de validation de manière lisible et esthétique.
@@ -14,10 +13,10 @@ import java.util.Map;
  */
 public class BeautifulErrorFormatter {
     
-    private static final String SEPARATOR = "═══════════════════════════════════════════════════════════════════════════════";
-    private static final String LINE = "───────────────────────────────────────────────────────────────────────────────";
-    private static final String DOUBLE_LINE = "╔═══════════════════════════════════════════════════════════════════════════════╗";
-    private static final String DOUBLE_LINE_END = "╚═══════════════════════════════════════════════════════════════════════════════╝";
+    private static final int BOX_WIDTH = 80;
+    private static final String TOP_LINE = "╔══════════════════════════════════════════════════════════════════════════════╗";
+    private static final String MIDDLE_LINE = "╠══════════════════════════════════════════════════════════════════════════════╣";
+    private static final String BOTTOM_LINE = "╚══════════════════════════════════════════════════════════════════════════════╝";
     private static final String BOX_SIDE = "║";
     
     private final SecretDetector secretDetector;
@@ -28,7 +27,7 @@ public class BeautifulErrorFormatter {
     
     /**
      * Formatte le résultat de validation en une chaîne lisible.
-     * Utilise un format "box" amélioré avec des bordures doubles.
+     * Utilise un format "box" avec des bordures doubles.
      * 
      * @param result Résultat de validation
      * @return Chaîne formatée
@@ -40,111 +39,105 @@ public class BeautifulErrorFormatter {
         
         StringBuilder sb = new StringBuilder();
         
-        // En-tête avec box amélioré
-        sb.append("\n").append(DOUBLE_LINE).append("\n");
-        sb.append(BOX_SIDE).append("                                                                               ").append(BOX_SIDE).append("\n");
-        sb.append(BOX_SIDE).append("              ⚠️   CONFIGURATION VALIDATION FAILED   ⚠️                        ").append(BOX_SIDE).append("\n");
-        sb.append(BOX_SIDE).append("                                                                               ").append(BOX_SIDE).append("\n");
-        sb.append(DOUBLE_LINE_END).append("\n\n");
+        // En-tête
+        sb.append("\n").append(TOP_LINE).append("\n");
+        sb.append(formatBoxLine("❌  CONFIGURATION VALIDATION FAILED  ❌", true)).append("\n");
+        sb.append(MIDDLE_LINE).append("\n");
+        sb.append(formatBoxLine("", false)).append("\n");
         
-        // Résumé
-        sb.append(formatSummary(result));
-        
-        // Erreurs par type
-        Map<ErrorType, List<ConfigurationError>> errorsByType = result.getErrorsGroupedByType();
-        for (Map.Entry<ErrorType, List<ConfigurationError>> entry : errorsByType.entrySet()) {
-            sb.append(formatErrorSection(entry.getKey(), entry.getValue()));
+        // Chaque erreur
+        for (ConfigurationError error : result.getErrors()) {
+            sb.append(formatError(error));
         }
         
-        // Pied de page
-        sb.append(SEPARATOR).append("\n\n");
-        sb.append("  📝 ACTION REQUIRED\n");
-        sb.append(LINE).append("\n\n");
-        sb.append("  Fix the errors above to start your application.\n");
-        sb.append("  💡 TIP: Fix all errors at once to avoid multiple restarts!\n");
-        sb.append(LINE).append("\n");
+        // Ligne vide finale
+        sb.append(formatBoxLine("", false)).append("\n");
+        sb.append(BOTTOM_LINE).append("\n");
         
         return sb.toString();
+    }
+    
+    /**
+     * Formatte une ligne dans la box avec padding approprié.
+     */
+    private String formatBoxLine(String content, boolean center) {
+        int contentLength = content.length();
+        int padding = BOX_WIDTH - 2 - contentLength; // -2 pour les bordures
+        
+        if (center) {
+            int leftPad = padding / 2;
+            int rightPad = padding - leftPad;
+            return BOX_SIDE + " ".repeat(leftPad) + content + " ".repeat(rightPad) + BOX_SIDE;
+        } else {
+            return BOX_SIDE + " ".repeat(BOX_WIDTH - 2) + BOX_SIDE;
+        }
     }
     
     private String formatSuccess() {
         StringBuilder sb = new StringBuilder();
-        sb.append("\n").append(SEPARATOR).append("\n");
-        sb.append("  ✅  CONFIGURATION VALIDATION PASSED  ✅\n");
-        sb.append(SEPARATOR).append("\n\n");
-        sb.append("  All configuration properties are valid!\n\n");
+        sb.append("\n").append(TOP_LINE).append("\n");
+        sb.append(formatBoxLine("✅  CONFIGURATION VALIDATION PASSED  ✅", true)).append("\n");
+        sb.append(BOTTOM_LINE).append("\n");
         return sb.toString();
     }
     
-    private String formatSummary(ValidationResult result) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("  📊 Summary:\n");
-        sb.append("     Total Errors: ").append(result.getErrorCount()).append("\n\n");
-        
-        Map<ErrorType, Long> countByType = result.getErrorCountByType();
-        for (Map.Entry<ErrorType, Long> entry : countByType.entrySet()) {
-            String icon = getIconForErrorType(entry.getKey());
-            sb.append("     ").append(icon).append(" ")
-              .append(entry.getKey().getDisplayName()).append(": ")
-              .append(entry.getValue()).append("\n");
-        }
-        sb.append("\n");
-        
-        return sb.toString();
-    }
-    
-    private String formatErrorSection(ErrorType type, List<ConfigurationError> errors) {
-        StringBuilder sb = new StringBuilder();
-        
-        String icon = getIconForErrorType(type);
-        sb.append(LINE).append("\n");
-        sb.append("  ").append(icon).append("  ").append(type.getDisplayName()).append("\n");
-        sb.append(LINE).append("\n\n");
-        
-        for (ConfigurationError error : errors) {
-            sb.append(formatError(error));
-        }
-        
-        return sb.toString();
-    }
     
     private String formatError(ConfigurationError error) {
         StringBuilder sb = new StringBuilder();
         
-        // Nom de la propriété
-        if (error.getPropertyName() != null && !error.getPropertyName().isEmpty()) {
-            sb.append("  ● Property: ").append(error.getPropertyName());
-            
-            // Ajouter un badge si sensible
-            if (error.isSensitive()) {
-                sb.append(" 🔒 [SENSITIVE]");
-            }
-            sb.append("\n");
-        }
+        // Ligne: 👉 Property: xxx
+        String propertyLine = "👉 Property: " + (error.getPropertyName() != null ? error.getPropertyName() : "unknown");
+        sb.append(formatBoxLine(propertyLine, false, 3)).append("\n");
         
-        // Source
-        if (error.getSource() != null) {
-            sb.append("    Source: ").append(error.getSource().getName()).append("\n");
-        }
+        // Ligne: Source: xxx
+        String sourceName = error.getSource() != null ? error.getSource().getName() : "unknown";
+        String sourceLine = "   Source:   " + sourceName;
+        sb.append(formatBoxLine(sourceLine, false, 3)).append("\n");
         
-        // Message d'erreur (sanitisé si sensible)
+        // Ligne: Error: xxx
         String errorMessage = error.getErrorMessage();
         if (error.isSensitive()) {
             errorMessage = secretDetector.sanitizeErrorMessage(error.getPropertyName(), errorMessage);
         }
-        sb.append("    ❌ ").append(errorMessage).append("\n");
+        String errorLine = "   Error:    " + errorMessage;
+        sb.append(formatBoxLine(errorLine, false, 3)).append("\n");
         
-        // Suggestion
+        // Ligne: 💡 Fix: xxx
         if (error.getSuggestion() != null && !error.getSuggestion().isEmpty()) {
             String[] suggestionLines = error.getSuggestion().split("\n");
-            sb.append("    💡 ").append(suggestionLines[0]).append("\n");
+            String fixLine = "   💡 Fix:   " + suggestionLines[0];
+            sb.append(formatBoxLine(fixLine, false, 3)).append("\n");
+            
+            // Lignes supplémentaires de suggestion
             for (int i = 1; i < suggestionLines.length; i++) {
-                sb.append("       ").append(suggestionLines[i]).append("\n");
+                String additionalLine = "             " + suggestionLines[i].trim();
+                sb.append(formatBoxLine(additionalLine, false, 3)).append("\n");
             }
         }
         
-        sb.append("\n");
+        // Ligne vide entre les erreurs
+        sb.append(formatBoxLine("", false)).append("\n");
+        
         return sb.toString();
+    }
+    
+    /**
+     * Formatte une ligne dans la box avec un contenu aligné à gauche et padding.
+     */
+    private String formatBoxLine(String content, boolean center, int leftPadding) {
+        // Calculer l'espace disponible (80 - 2 bordures - padding gauche)
+        int availableWidth = BOX_WIDTH - 2 - leftPadding;
+        
+        // Tronquer le contenu si trop long
+        String displayContent = content;
+        if (content.length() > availableWidth) {
+            displayContent = content.substring(0, availableWidth - 3) + "...";
+        }
+        
+        // Calculer le padding à droite
+        int rightPadding = availableWidth - displayContent.length();
+        
+        return BOX_SIDE + " ".repeat(leftPadding) + displayContent + " ".repeat(rightPadding) + BOX_SIDE;
     }
     
     private String getIconForErrorType(ErrorType type) {
