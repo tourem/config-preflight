@@ -1,8 +1,10 @@
 package io.github.tourem.test.micronaut.config;
 
 import io.micronaut.context.annotation.ConfigurationProperties;
+import io.micronaut.context.annotation.Context;
 import jakarta.inject.Singleton;
 
+@Context
 @Singleton
 @ConfigurationProperties("database")
 public class DatabaseConfig {
@@ -51,5 +53,16 @@ public class DatabaseConfig {
 
     public void setTimeout(Long timeout) {
         this.timeout = timeout;
+    }
+
+    @Override
+    public String toString() {
+        return "DatabaseConfig{" +
+                "url='" + url + '\'' +
+                ", username='" + username + '\'' +
+                ", password='" + (password != null ? "***" : "null") + '\'' +
+                ", maxConnections=" + maxConnections +
+                ", timeout=" + timeout +
+                '}';
     }
 }

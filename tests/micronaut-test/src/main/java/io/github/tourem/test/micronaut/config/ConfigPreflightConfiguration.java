@@ -1,18 +1,26 @@
 package io.github.tourem.test.micronaut.config;
 
-import com.mycompany.validator.micronaut.MicronautConfigurationPropertiesValidator;
-import io.micronaut.context.BeanContext;
-import io.micronaut.context.annotation.Factory;
+import io.micronaut.context.event.ApplicationEventListener;
+import io.micronaut.runtime.server.event.ServerStartupEvent;
 import jakarta.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Configuration pour activer config-preflight dans le projet de test.
+ * Le MicronautConfigurationPropertiesValidator s'occupe automatiquement de la validation.
  */
-@Factory
-public class ConfigPreflightConfiguration {
+@Singleton
+public class ConfigPreflightConfiguration implements ApplicationEventListener<ServerStartupEvent> {
     
-    @Singleton
-    public MicronautConfigurationPropertiesValidator configurationPropertiesValidator(BeanContext beanContext) {
-        return new MicronautConfigurationPropertiesValidator(beanContext);
+    private static final Logger logger = LoggerFactory.getLogger(ConfigPreflightConfiguration.class);
+    
+    public ConfigPreflightConfiguration() {
+        logger.info("✅ Config-preflight is enabled for this application");
+    }
+    
+    @Override
+    public void onApplicationEvent(ServerStartupEvent event) {
+        logger.info("✅ Application started successfully - all configuration properties are valid");
     }
 }

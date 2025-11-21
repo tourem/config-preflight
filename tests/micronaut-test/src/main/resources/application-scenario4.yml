@@ -26,3 +26,5 @@ messaging:
 micronaut:
   application:
     name: micronaut-test-scenario4
+  server:
+    port: 8084

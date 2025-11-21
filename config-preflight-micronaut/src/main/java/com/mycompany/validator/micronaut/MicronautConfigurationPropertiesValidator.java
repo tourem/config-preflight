@@ -8,8 +8,9 @@ import com.mycompany.validator.core.model.ErrorType;
 import com.mycompany.validator.core.model.PropertySource;
 import io.micronaut.context.BeanContext;
 import io.micronaut.context.annotation.ConfigurationProperties;
-import io.micronaut.context.event.ApplicationEventListener;
-import io.micronaut.runtime.server.event.ServerStartupEvent;
+import io.micronaut.context.annotation.Context;
+import io.micronaut.context.event.BeanInitializingEvent;
+import io.micronaut.context.event.BeanInitializedEventListener;
 import io.micronaut.core.order.Ordered;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
@@ -19,71 +20,90 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Validator qui scanne tous les beans @ConfigurationProperties
- * et vérifie que leurs propriétés ne sont pas null.
+ * Validator qui intercepte tous les beans @ConfigurationProperties
+ * après leur initialisation (property injection) et vérifie que leurs propriétés ne sont pas null.
  */
+@Context
 @Singleton
-public class MicronautConfigurationPropertiesValidator implements ApplicationEventListener<ServerStartupEvent>, Ordered {
+public class MicronautConfigurationPropertiesValidator implements BeanInitializedEventListener<Object>, Ordered {
     
     private static final Logger logger = LoggerFactory.getLogger(MicronautConfigurationPropertiesValidator.class);
     
-    private final BeanContext beanContext;
     private final SecretDetector secretDetector = new SecretDetector();
     private final BeautifulErrorFormatter formatter = new BeautifulErrorFormatter();
+    private final ConcurrentHashMap<Class<?>, Boolean> validatedClasses = new ConcurrentHashMap<>();
+    private final List<ConfigurationError> allErrors = new ArrayList<>();
+    private final AtomicBoolean hasReportedErrors = new AtomicBoolean(false);
     
-    public MicronautConfigurationPropertiesValidator(BeanContext beanContext) {
-        this.beanContext = beanContext;
+    public MicronautConfigurationPropertiesValidator() {
+        logger.info("🔍 MicronautConfigurationPropertiesValidator initialized");
     }
     
     @Override
-    public void onApplicationEvent(ServerStartupEvent event) {
-        logger.info("🔍 Scanning @ConfigurationProperties beans for null values...");
+    public Object onInitialized(BeanInitializingEvent<Object> event) {
+        Object bean = event.getBean();
+        Class<?> beanClass = bean.getClass();
         
-        List<ConfigurationError> errors = new ArrayList<>();
+        logger.debug("onInitialized called for bean: {}", beanClass.getSimpleName());
         
-        // Trouver tous les bean definitions avec @ConfigurationProperties
-        Collection<?> beanDefinitions = beanContext.getBeanDefinitions(Object.class);
+        // Ignorer les beans internes de Micronaut
+        if (isInternalMicronautBean(beanClass)) {
+            return bean;
+        }
         
-        for (Object beanDef : beanDefinitions) {
-            if (beanDef instanceof io.micronaut.inject.BeanDefinition) {
-                io.micronaut.inject.BeanDefinition<?> definition = (io.micronaut.inject.BeanDefinition<?>) beanDef;
-                Class<?> beanClass = definition.getBeanType();
+        // Vérifier si la classe a @ConfigurationProperties
+        ConfigurationProperties annotation = findConfigurationPropertiesAnnotation(beanClass);
+        if (annotation != null && !validatedClasses.containsKey(beanClass)) {
+            validatedClasses.put(beanClass, true);
+            String prefix = annotation.value();
+            logger.info("Validating @ConfigurationProperties bean: {} with prefix: {}", beanClass.getSimpleName(), prefix);
+            
+            // Valider les propriétés de ce bean
+            List<ConfigurationError> errors = validateBean(bean, prefix, beanClass);
+            
+            if (!errors.isEmpty()) {
+                synchronized (allErrors) {
+                    allErrors.addAll(errors);
+                }
                 
-                // Vérifier si la classe a @ConfigurationProperties
-                ConfigurationProperties annotation = findConfigurationPropertiesAnnotation(beanClass);
-                if (annotation != null) {
-                    String prefix = annotation.value();
-                    logger.debug("Found @ConfigurationProperties bean: {} with prefix: {}", beanClass.getSimpleName(), prefix);
-                    
-                    // Récupérer le bean
-                    try {
-                        Object bean = beanContext.getBean(beanClass);
-                        // Valider les propriétés de ce bean
-                        errors.addAll(validateBean(bean, prefix, beanClass));
-                    } catch (Exception e) {
-                        logger.warn("Could not get bean for class {}: {}", beanClass.getSimpleName(), e.getMessage());
-                    }
+                // Rapporter les erreurs immédiatement
+                if (hasReportedErrors.compareAndSet(false, true)) {
+                    reportErrors();
                 }
             }
         }
         
-        if (!errors.isEmpty()) {
-            ValidationResult result = new ValidationResult(errors);
+        return bean;
+    }
+    
+    private void reportErrors() {
+        if (!allErrors.isEmpty()) {
+            ValidationResult result = new ValidationResult(allErrors);
             String formattedErrors = formatter.format(result);
             
             System.err.println(formattedErrors);
-            logger.error("❌ Configuration validation failed with {} error(s)", errors.size());
+            logger.error("❌ Configuration validation failed with {} error(s)", allErrors.size());
             
             // Arrêter l'application
             throw new ConfigurationValidationException(
-                "Configuration validation failed with " + errors.size() + " error(s)",
+                "Configuration validation failed with " + allErrors.size() + " error(s)",
                 result
             );
-        } else {
-            logger.info("✅ All @ConfigurationProperties beans are properly configured");
         }
+    }
+    
+    /**
+     * Vérifie si un bean fait partie des packages internes de Micronaut.
+     */
+    private boolean isInternalMicronautBean(Class<?> beanClass) {
+        String packageName = beanClass.getPackage() != null ? beanClass.getPackage().getName() : "";
+        return packageName.startsWith("io.micronaut.") 
+            || packageName.startsWith("com.fasterxml.jackson.")
+            || packageName.startsWith("io.netty.");
     }
     
     private ConfigurationProperties findConfigurationPropertiesAnnotation(Class<?> clazz) {
@@ -138,7 +158,10 @@ public class MicronautConfigurationPropertiesValidator implements ApplicationEve
     }
     
     private String convertToKebabCase(String camelCase) {
-        return camelCase.replaceAll("([a-z])([A-Z])", "$1-$2").toLowerCase();
+        // Convertir camelCase en kebab-case
+        // maxConnections -> max-connections
+        // apiKey -> api-key
+        return camelCase.replaceAll("([a-z0-9])([A-Z])", "$1-$2").toLowerCase();
     }
     
     private String generateSuggestion(String propertyName) {
@@ -149,8 +172,8 @@ public class MicronautConfigurationPropertiesValidator implements ApplicationEve
     
     @Override
     public int getOrder() {
-        // S'exécuter après MicronautEarlyValidator mais avant le démarrage du serveur
-        return Ordered.HIGHEST_PRECEDENCE + 100;
+        // S'exécuter en tout premier pour valider les beans dès leur création
+        return Ordered.HIGHEST_PRECEDENCE;
     }
     
     public static class ConfigurationValidationException extends RuntimeException {

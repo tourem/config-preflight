@@ -1,8 +1,10 @@
 package io.github.tourem.test.micronaut.config;
 
 import io.micronaut.context.annotation.ConfigurationProperties;
+import io.micronaut.context.annotation.Context;
 import jakarta.inject.Singleton;
 
+@Context
 @Singleton
 @ConfigurationProperties("messaging")
 public class MessagingConfig {
