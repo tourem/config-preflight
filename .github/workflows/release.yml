@@ -84,6 +84,34 @@ jobs:
         git add pom.xml */pom.xml
         git commit -m "Prepare next development iteration ${{ steps.next-version.outputs.next-snapshot }}"
         
+    - name: Update test projects with new snapshot version
+      run: |
+        cd tests/spring-boot-test
+        mvn versions:set-property -Dproperty=config-preflight.version -DnewVersion=${{ steps.next-version.outputs.next-snapshot }} -DgenerateBackupPoms=false
+        cd ../quarkus-test
+        mvn versions:set-property -Dproperty=config-preflight.version -DnewVersion=${{ steps.next-version.outputs.next-snapshot }} -DgenerateBackupPoms=false
+        cd ../micronaut-test
+        mvn versions:set-property -Dproperty=config-preflight.version -DnewVersion=${{ steps.next-version.outputs.next-snapshot }} -DgenerateBackupPoms=false
+        cd ../..
+        git add tests/*/pom.xml
+        
+    - name: Update documentation with release version
+      run: |
+        # Update README.md
+        sed -i "s/<version>.*-SNAPSHOT<\/version>/<version>${{ inputs.release-version }}<\/version>/g" README.md
+        
+        # Update DOCUMENTATION.md
+        sed -i "s/<version>.*-SNAPSHOT<\/version>/<version>${{ inputs.release-version }}<\/version>/g" DOCUMENTATION.md
+        
+        # Update tests/README.md
+        sed -i "s/<config-preflight.version>.*-SNAPSHOT<\/config-preflight.version>/<config-preflight.version>${{ inputs.release-version }}<\/config-preflight.version>/g" tests/README.md
+        
+        git add README.md DOCUMENTATION.md tests/README.md
+        
+    - name: Commit documentation and test updates
+      run: |
+        git commit -m "Update test projects and documentation to version ${{ inputs.release-version }}"
+        
     - name: Push changes and tags
       run: |
         git push origin main
