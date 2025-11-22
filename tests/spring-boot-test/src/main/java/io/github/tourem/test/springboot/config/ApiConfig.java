@@ -1,15 +1,27 @@
 package io.github.tourem.test.springboot.config;
 
+import jakarta.validation.constraints.NotNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
 @Component
 @ConfigurationProperties(prefix = "api")
+@Validated
 public class ApiConfig {
+    @NotNull(message = "api.endpoint is required")
     private String endpoint;
+    
+    @NotNull(message = "api.api-key is required")
     private String apiKey;
+    
+    @NotNull(message = "api.retry-count is required")
     private Integer retryCount;
+    
+    @NotNull(message = "api.enable-cache is required")
     private Boolean enableCache;
+    
+    @NotNull(message = "api.cache-directory is required")
     private String cacheDirectory;
 
     // Getters and Setters
