@@ -159,31 +159,62 @@ public class SpringBootConfigurationPropertiesValidator implements ApplicationLi
     
     /**
      * Détecte le fichier source d'où devrait provenir une propriété.
-     * Retourne le nom du fichier de configuration actif (ex: application-scenario3.yml)
-     * Basé sur le profil Spring actif.
+     * Vérifie dans quel fichier les autres propriétés du même prefix sont définies.
      */
     private PropertySource detectPropertySource(String propertyName) {
         org.springframework.core.env.Environment environment = applicationContext.getEnvironment();
+        if (!(environment instanceof ConfigurableEnvironment)) {
+            return new PropertySource("application.yml", "classpath:application.yml", PropertySource.SourceType.APPLICATION_YAML);
+        }
+        ConfigurableEnvironment env = (ConfigurableEnvironment) environment;
         
-        // Récupérer les profils actifs
-        String[] activeProfiles = environment.getActiveProfiles();
+        // Extraire le prefix (ex: "database" de "database.max-connections")
+        String prefix = propertyName.contains(".") ? propertyName.substring(0, propertyName.indexOf(".")) : propertyName;
         
-        // Si un profil est actif, retourner le fichier correspondant
-        if (activeProfiles != null && activeProfiles.length > 0) {
-            String profileName = activeProfiles[0]; // Prendre le premier profil
-            String fileName = "application-" + profileName + ".yml";
-            return new PropertySource(
-                fileName,
-                "classpath:" + fileName,
-                PropertySource.SourceType.APPLICATION_YAML
-            );
+        // Chercher dans les PropertySources pour trouver où ce prefix est défini
+        String profileSpecificFile = null;
+        String defaultFile = null;
+        
+        for (org.springframework.core.env.PropertySource<?> ps : env.getPropertySources()) {
+            String sourceName = ps.getName();
+            
+            if (sourceName.contains("application") && 
+                (sourceName.contains(".yml") || sourceName.contains(".yaml") || sourceName.contains(".properties"))) {
+                
+                String fileName = extractFileName(sourceName);
+                
+                // Vérifier si ce PropertySource contient des propriétés avec notre prefix
+                if (ps instanceof EnumerablePropertySource) {
+                    EnumerablePropertySource<?> enumPs = (EnumerablePropertySource<?>) ps;
+                    for (String propName : enumPs.getPropertyNames()) {
+                        if (propName.startsWith(prefix + ".") || propName.startsWith(prefix + "[")) {
+                            // Cette source contient des propriétés de notre prefix
+                            if (fileName.contains("-") && !fileName.equals("application.yml")) {
+                                profileSpecificFile = fileName;
+                                break;
+                            } else if (fileName.equals("application.yml") || fileName.equals("application.properties")) {
+                                defaultFile = fileName;
+                            }
+                        }
+                    }
+                    
+                    if (profileSpecificFile != null) {
+                        break; // On a trouvé le fichier spécifique au profil
+                    }
+                }
+            }
         }
         
-        // Fallback: application.yml par défaut
+        // Retourner le fichier où le prefix est défini
+        String selectedFile = profileSpecificFile != null ? profileSpecificFile : 
+                             (defaultFile != null ? defaultFile : "application.yml");
+        
         return new PropertySource(
-            "application.yml",
-            "classpath:application.yml",
-            PropertySource.SourceType.APPLICATION_YAML
+            selectedFile,
+            "classpath:" + selectedFile,
+            selectedFile.endsWith(".properties") ? 
+                PropertySource.SourceType.APPLICATION_PROPERTIES : 
+                PropertySource.SourceType.APPLICATION_YAML
         );
     }
     
