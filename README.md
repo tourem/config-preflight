@@ -157,30 +157,38 @@ The validator activates **automatically** at startup.
 - **Micronaut** ✅ Automatically scans `@ConfigurationProperties` beans
 - **Quarkus** ⚠️ See optional configuration below
 
-### 3. Using with @NotNull Annotations (Spring Boot)
+### 3. Using with @NotNull and @Validated (Spring Boot)
 
-If you want to use `@NotNull` annotations on your `@ConfigurationProperties` for IDE support and documentation, **do NOT add `@Validated`** to the class. This prevents Spring Boot's native validation from blocking before config-preflight can show all errors.
+**Good news!** You can now use `@Validated` with `@NotNull` annotations on your `@ConfigurationProperties`. Config-preflight will automatically intercept validation errors and show ALL errors with beautiful formatting!
 
 ```java
 @Component
 @ConfigurationProperties(prefix = "database")
-// ❌ DO NOT add @Validated if you want config-preflight to handle validation
+@Validated  // ✅ Now fully supported!
 public class DatabaseConfig {
-    @NotNull  // ✅ OK for documentation and IDE support
+    @NotNull(message = "database.url is required")
     private String url;
     
-    @NotNull  // ✅ OK for documentation and IDE support
+    @NotNull(message = "database.password is required")
     private String password;
     
     // ... getters/setters
 }
 ```
 
-**Why?** Without `@Validated`, Spring Boot won't validate `@NotNull` constraints during binding, allowing config-preflight to:
-- ✅ Show **ALL** missing properties at once (not just the first one)
-- ✅ Display beautiful formatted error messages
-- ✅ Automatically mask sensitive properties
-- ✅ Provide actionable suggestions
+**How it works:**
+1. Spring Boot validates your `@ConfigurationProperties` with `@Validated`
+2. If validation fails, config-preflight's `FailureAnalyzer` intercepts the error
+3. **ALL** validation errors are extracted (not just the first one)
+4. Errors are displayed with beautiful formatting, sensitive data masking, and actionable suggestions
+
+**Benefits:**
+- ✅ Keep your existing `@Validated` + `@NotNull` annotations
+- ✅ Show **ALL** missing properties at once (not one-by-one)
+- ✅ Beautiful formatted error messages
+- ✅ Automatic sensitive data masking (password, secret, key, token, etc.)
+- ✅ Actionable suggestions for each error
+- ✅ Works seamlessly with Spring Boot's validation
 
 #### Optional: Custom Property Validation (Quarkus)
 
