@@ -3,14 +3,14 @@ package io.github.tourem.test.springboot.config;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
 @Component
 @ConfigurationProperties(prefix = "database")
-// NOTE: @Validated is NOT used here to prevent Spring Boot native validation
-// This allows config-preflight to handle validation with beautiful formatting
-// @NotNull annotations serve as documentation and can be used by IDEs
+@Validated  // ✅ Now works with config-preflight FailureAnalyzer!
 public class DatabaseConfig {
-    // @NotNull for documentation - config-preflight will validate
+    // @NotNull will be validated by Spring Boot, but config-preflight
+    // will intercept the error and show ALL errors with beautiful formatting
     @NotNull(message = "database.url is required")
     private String url;
     
