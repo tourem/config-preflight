@@ -13,6 +13,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.Ordered;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.EnumerablePropertySource;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -125,10 +127,13 @@ public class SpringBootConfigurationPropertiesValidator implements ApplicationLi
                     
                     logger.warn("Property '{}' is null in bean {}", propertyName, beanClass.getSimpleName());
                     
+                    // Détecter la source réelle de la propriété
+                    PropertySource source = detectPropertySource(propertyName);
+                    
                     errors.add(ConfigurationError.builder()
                         .type(ErrorType.MISSING_PROPERTY)
                         .propertyName(propertyName)
-                        .source(new PropertySource("application.yml", "classpath:application.yml", PropertySource.SourceType.APPLICATION_YAML))
+                        .source(source)
                         .errorMessage("Property '" + propertyName + "' is not set")
                         .suggestion(generateSuggestion(propertyName))
                         .isSensitive(isSensitive)
@@ -150,6 +155,53 @@ public class SpringBootConfigurationPropertiesValidator implements ApplicationLi
         String envVarName = propertyName.replace('.', '_').replace('-', '_').toUpperCase();
         return String.format("Add to application.yml: %s: <value>\nOR set environment variable: export %s=<value>",
                 propertyName, envVarName);
+    }
+    
+    /**
+     * Détecte le fichier source d'où devrait provenir une propriété.
+     * Retourne le nom du fichier de configuration actif (ex: application-scenario3.yml)
+     * Basé sur le profil Spring actif.
+     */
+    private PropertySource detectPropertySource(String propertyName) {
+        org.springframework.core.env.Environment environment = applicationContext.getEnvironment();
+        
+        // Récupérer les profils actifs
+        String[] activeProfiles = environment.getActiveProfiles();
+        
+        // Si un profil est actif, retourner le fichier correspondant
+        if (activeProfiles != null && activeProfiles.length > 0) {
+            String profileName = activeProfiles[0]; // Prendre le premier profil
+            String fileName = "application-" + profileName + ".yml";
+            return new PropertySource(
+                fileName,
+                "classpath:" + fileName,
+                PropertySource.SourceType.APPLICATION_YAML
+            );
+        }
+        
+        // Fallback: application.yml par défaut
+        return new PropertySource(
+            "application.yml",
+            "classpath:application.yml",
+            PropertySource.SourceType.APPLICATION_YAML
+        );
+    }
+    
+    /**
+     * Extrait le nom du fichier depuis le nom de la PropertySource.
+     * Ex: "Config resource 'class path resource [application-scenario3.yml]'" -> "application-scenario3.yml"
+     */
+    private String extractFileName(String sourceName) {
+        if (sourceName.contains("[") && sourceName.contains("]")) {
+            int start = sourceName.indexOf("[") + 1;
+            int end = sourceName.indexOf("]");
+            if (end > start) {
+                return sourceName.substring(start, end);
+            }
+        }
+        
+        // Si on ne peut pas extraire, retourner application.yml
+        return "application.yml";
     }
     
     public static class ConfigurationValidationException extends RuntimeException {

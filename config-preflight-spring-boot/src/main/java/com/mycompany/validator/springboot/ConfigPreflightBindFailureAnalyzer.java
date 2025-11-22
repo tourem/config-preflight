@@ -6,13 +6,16 @@ import com.mycompany.validator.core.formatter.BeautifulErrorFormatter;
 import com.mycompany.validator.core.model.ConfigurationError;
 import com.mycompany.validator.core.model.ErrorType;
 import com.mycompany.validator.core.model.PropertySource;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.context.properties.bind.BindException;
 import org.springframework.boot.context.properties.bind.validation.BindValidationException;
 import org.springframework.boot.context.properties.source.ConfigurationPropertyName;
 import org.springframework.boot.diagnostics.AbstractFailureAnalyzer;
 import org.springframework.boot.diagnostics.FailureAnalysis;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 
@@ -81,11 +84,14 @@ public class ConfigPreflightBindFailureAnalyzer extends AbstractFailureAnalyzer<
                 // Détecter si c'est une propriété sensible
                 boolean isSensitive = secretDetector.isSensitive(propertyName);
                 
+                // Détecter la source réelle
+                PropertySource source = detectPropertySource();
+                
                 // Créer le ConfigurationError
                 errors.add(ConfigurationError.builder()
                     .type(ErrorType.MISSING_PROPERTY)
                     .propertyName(propertyName)
-                    .source(new PropertySource("application.yml", "classpath:application.yml", PropertySource.SourceType.APPLICATION_YAML))
+                    .source(source)
                     .errorMessage(fieldError.getDefaultMessage() != null ? fieldError.getDefaultMessage() : "Property '" + propertyName + "' is not set")
                     .suggestion(generateSuggestion(propertyName))
                     .isSensitive(isSensitive)
@@ -185,5 +191,36 @@ public class ConfigPreflightBindFailureAnalyzer extends AbstractFailureAnalyzer<
         action.append("Fix the ").append(errors.size()).append(" error(s) above to start your application.\n");
         action.append("💡 TIP: Fix all errors at once to avoid multiple restarts!");
         return action.toString();
+    }
+    
+    /**
+     * Détecte le fichier source actif basé sur le profil Spring actif.
+     */
+    private PropertySource detectPropertySource() {
+        // Essayer de détecter le profil actif depuis les propriétés système
+        String activeProfiles = System.getProperty("spring.profiles.active");
+        
+        // Si pas dans les propriétés système, essayer les variables d'environnement
+        if (activeProfiles == null || activeProfiles.isEmpty()) {
+            activeProfiles = System.getenv("SPRING_PROFILES_ACTIVE");
+        }
+        
+        // Si un profil est actif, retourner le fichier correspondant
+        if (activeProfiles != null && !activeProfiles.isEmpty()) {
+            String profileName = activeProfiles.split(",")[0].trim(); // Prendre le premier profil
+            String fileName = "application-" + profileName + ".yml";
+            return new PropertySource(
+                fileName,
+                "classpath:" + fileName,
+                PropertySource.SourceType.APPLICATION_YAML
+            );
+        }
+        
+        // Fallback: application.yml par défaut
+        return new PropertySource(
+            "application.yml",
+            "classpath:application.yml",
+            PropertySource.SourceType.APPLICATION_YAML
+        );
     }
 }

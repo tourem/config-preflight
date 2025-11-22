@@ -4,7 +4,7 @@ database:
   url: jdbc:postgresql://localhost:5432/testdb
   username: testuser
   # password: missing - should trigger validation error
-  maxConnections: 10
+  # maxConnections: missing - should trigger validation error
   # timeout: missing - should trigger validation error
 
 api:

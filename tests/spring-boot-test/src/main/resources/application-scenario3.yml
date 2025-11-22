@@ -5,7 +5,7 @@ database:
   url: jdbc:postgresql://localhost:5432/testdb
   username: testuser
   password: secret123
-  max-connections: 10
+  # max-connections: MISSING - should be detected
   timeout: 30000
 
 api:
